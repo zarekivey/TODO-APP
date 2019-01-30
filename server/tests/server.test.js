@@ -4,9 +4,17 @@ const request = require('supertest');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+const todos = [{
+    text: 'First'
+}, {
+    text: 'Second'
+}]
+
 // so the databse is empty before every assumption
 beforeEach((done) => {
-    Todo.remove({}).then(() => done ());
+    Todo.remove({}).then(() => {
+       return Todo.insertMany(todos);
+    }).then(() => done());
 });
 
 describe('POST /todos', () => {
@@ -14,7 +22,7 @@ describe('POST /todos', () => {
         let text = 'test todos text';
         // what the app should send back
         request(app)
-            .post('/todo')
+            .post('/todos')
             .send({text})
             .expect(200)
             .expect((res) => {
@@ -25,7 +33,7 @@ describe('POST /todos', () => {
                     return done(err);
                 }
                 // finding the todo that was just created for the test
-                Todo.find().then((todos) => {
+                Todo.find({text}).then((todos) => {
                     expect(todos.length).toBe(1);
                     expect(todos[0].text).toBe(text);
                     done();
@@ -35,7 +43,7 @@ describe('POST /todos', () => {
 
     it('should not create todo with invalid body data', (done) => {
         request(app)
-            .post('/todo')
+            .post('/todos')
             .send({})
             .expect(400)
             .end((err, res) => {
@@ -43,9 +51,22 @@ describe('POST /todos', () => {
                     return done(err)
                 }
                 Todo.find().then(() => {
-                    expect(todos.length).toBe(0);
+                    expect(todos.length).toBe(2);
                     done();
                 }).catch((e) => done(e));
             });
+    });
+});
+
+describe('GET /todos', () => {
+    it('should get all todos', (done) => {
+        request(app)
+            .get('/todos')
+            .expect(200)
+            .expect((res) => {
+                // grabbing all todos
+                expect(res.body.todos.length).toBe(2);
+            })
+            .end(done);
     });
 });

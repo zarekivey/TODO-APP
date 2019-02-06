@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb')
 
+require('./config/config')
 const { mongoose } = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
@@ -71,6 +72,7 @@ app.delete('/todos/:id', (req, res) => {
     });
 });
 
+// updating todos
 app.patch('/todos/:id', (req, res) => {
     let id = req.params.id;
     // what the user can edit / control

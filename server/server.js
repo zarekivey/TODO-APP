@@ -25,6 +25,7 @@ app.post('/todos', (req, res) => {
     });
 });
 
+
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({todos});
@@ -72,36 +73,34 @@ app.delete('/todos/:id', (req, res) => {
     });
 });
 
-// updating todos
 app.patch('/todos/:id', (req, res) => {
     let id = req.params.id;
     // what the user can edit / control
     let body = _.pick(req.body, ['text', 'completed']);
-
+  
     if (!ObjectID.isValid(id)) {
-        return res.status(404).send();
+      return res.status(404).send();
     }
-
     // if its a boolean and true, update completedAt
     if (_.isBoolean(body.completed) && body.completed) {
-        body.completedAt = new Date().getTime();
+      body.completedAt = new Date().getTime();
     } else {
-        body.completed = false;
-        body.completedAt = null;
+      body.completed = false;
+      body.completedAt = null;
     }
-
-    Todo.findByIdAndUpdate(id, {$set: body}, {$new: true}).then((todo) => {
-        if (!todo) {
-            return res.status(404).send();
-        }
-
-        res.send({todo});
+  
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+      if (!todo) {
+        return res.status(404).send();
+      }
+  
+      res.send({todo});
     }).catch((e) => {
-        res.status(400).send();
+      res.status(400).send();
     })
-});
-
-app.listen(port, () => {
+  });
+  
+  app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
 
